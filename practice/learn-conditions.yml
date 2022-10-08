@@ -1,0 +1,19 @@
+# vim:ft=ansible:
+---
+- name: conditional playbook
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Install apache
+      apt:
+        name: apache2
+        state: latest
+      when: ansible_distribution == 'Debian' or
+            ansible_distribution == 'Ubuntu'
+
+    - name: Install apache
+      yum:
+        name: httpd
+        state: latest
+      when: ansible_distribution == 'RedHat'

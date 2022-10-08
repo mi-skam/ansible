@@ -1,0 +1,18 @@
+# vim:ft=ansible:
+---
+- name: handler playbook
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Ensure apache is present
+      apt:
+        name: apache2
+        state: latest
+      register: apache_results
+
+    - name: Restart apache
+      service:
+        name: apache2
+        state: restarted
+      when: apache_results.changed

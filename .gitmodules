@@ -1,0 +1,3 @@
+[submodule "examples/ansible-letsencrypt-nginx"]
+	path = examples/ansible-letsencrypt-nginx
+	url = https://github.com/jibiabraham/ansible-letsencrypt-nginx.git
