@@ -1,0 +1,9 @@
+[dev]
+romeo
+marco
+
+[vm]
+alma ansible_host=10.10.0.2
+
+[cisco]
+sandbox-iosxe-latest-1.cisco.com
