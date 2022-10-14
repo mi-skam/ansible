@@ -11,7 +11,7 @@
     
     - name: Import Remi GPG key.
       rpm_key:
-        key: "https://rpms.remirepo.et/RPM-GPG-KEY-remi"
+        key: "https://rpms.remirepo.net/RPM-GPG-KEY-remi2018"
         state: present
 
     - name: Install Remi repo.
@@ -36,3 +36,12 @@
 
     - name: Install app depedencies defined in package.json
       npm: path={{ node_apps_location }}/app
+
+    - name: Check list of running Node.js apps.
+      command: /usr/local/bin/forever list
+      register: forever_list
+      changed_when: false
+
+    - name: Start example Node.js app.
+      command: "/usr/local/bin/forever start {{ node_apps_location }}/app/app.js"
+      when: "forever_list.stdout.find(node_apps_location + '/app/app.js') == -1"
