@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Get PGP keys for syncthing repo
+      ansible.builtin.get_url:
+        url: https://syncthing.net/release-key.gpg
+        dest: /usr/share/keyrings/syncthing-archive-keyring.gpg
+
+    - name: Adding syncthing repo to apt
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/syncthing-archive-keyring.gpg] https://apt.syncthing.net/ syncthing stable"
+        state: present
+
+    - name: Update apt cache
+      ansible.builtin.apt: update_cache=yes
+
+    - name: Install syncthing
+      ansible.builtin.apt: name=syncthing state=present

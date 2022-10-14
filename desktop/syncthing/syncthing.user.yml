@@ -1,0 +1,10 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Enable systemd as a systemd user service
+      ansible.builtin.systemd:
+        name: syncthing
+        scope: user
+        state: started
+        enabled: yes
