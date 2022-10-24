@@ -1,0 +1,132 @@
+---
+- hosts: all
+  become: yes
+
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    - name: Update apt cache if needed.
+      apt: update_cache=yes cache_valid_time=3600
+
+  handlers:
+    - name: restart_apache
+      service: name=apache2 state=restarted use=service
+
+  tasks:
+    - name: Get software for apt repository management.
+      apt:
+        state: present
+        name:
+          - python3-apt
+          - python3-pycurl
+
+    - name: Add ondrej repository for later versions of PHP.
+      apt_repository: repo='ppa:ondrej/php' update_cache=yes
+    
+    - name: "Install Apache, PHP, and other dependencies."
+      apt:
+        state: present
+        name:
+          - acl
+          - git
+          - curl
+          - unzip
+          - sendmail
+          - apache2
+          - php7.4-common
+          - php7.4-cli
+          - php7.4-dev
+          - php7.4-gd
+          - php7.4-curl
+          - php7.4-json
+          - php7.4-opcache
+          - php7.4-xml
+          - php7.4-mbstring
+          - php7.4-pdo
+          - php7.4-apcu
+          - libpcre3-dev
+          - libapache2-mod-php7.4
+          - python3-mysqldb
+
+    - name: Disable the firewall.
+      service: name=ufw state=stopped use=service
+
+    - name: "Start Apache, and PHP."
+      service: "name={{ item }} state=started use=service"
+      with_items:
+        - apache2
+
+
+    - name: Enable Apache rewrite module.
+      apache2_module: name=rewrite state=present
+      notify: restart_apache
+
+    - name: Add Apache virtualhost for Kirby.
+      template:
+        src: "templates/kirby.pipi.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ domain }}.pipi.conf"
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart_apache
+
+    - name: Enable the Kirby site.
+      command: >
+        a2ensite {{ domain }}.pipi
+        creates=/etc/apache2/sites-enabled/{{ domain }}.pipi.conf
+      notify: restart_apache
+
+    - name: Disable the default site.
+      command: >
+        a2dissite 000-default
+        removes=/etc/apache2/sites-enabled/000-default.conf
+
+    - name: Adjust OpCache memory setting.
+      lineinfile:
+        dest: "/etc/php/7.4/apache2/conf.d/10-opcache.ini"
+        regexp: "^opcache.memory.consumption"
+        line: "opcache.memory.consumption = 96"
+        state: present
+      notify: restart_apache
+
+    - name: Download Composer installer.
+      get_url:
+        url: https://getcomposer.org/installer
+        dest: /tmp/composer-installer.php
+        mode: 0755
+
+    - name: Run Composer installer.
+      command: >
+        php composer-installer.php
+        chdir=/tmp
+        creates=/tmp/composer.phar
+
+    - name: Move Composer into globally-accessible location.
+      command: >
+        mv /tmp/composer.phar /usr/local/bin/composer
+        creates=/usr/local/bin/composer
+
+    - name: Ensure Kirby directory exists.
+      file:
+        path: "{{ kirby_path }}"
+        state: directory
+        owner: www-data
+        group: www-data
+
+    - name: Check if Kirby project already exists.
+      stat:
+        path: "{{ kirby_path }}/composer.json"
+      register: kirby_composer_json
+
+    - name: Create Kirby project
+      composer:
+        command: create-project
+        arguments: "{{ kirby_template }} {{ kirby_path }}"
+        working_dir: "{{ kirby_path }}"
+      become_user: www-data
+      when: not kirby_composer_json.stat.exists
+
+
+
+       

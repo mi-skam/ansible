@@ -1,0 +1,5 @@
+---
+kirby_path: "/var/www/kirby"
+kirby_template: "getkirby/plainkit"
+domain: "kirby"
+

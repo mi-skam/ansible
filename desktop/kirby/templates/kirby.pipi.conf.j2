@@ -1,0 +1,9 @@
+<VirtualHost *:80>
+  ServerAdmin webmaster@localhost
+  ServerName {{ domain }}.pipi
+  DocumentRoot {{ kirby_path }}
+  <Directory "{{ kirby_path }}">
+    Options FollowSymLinks Indexes
+    AllowOverride All
+  </Directory>
+</VirtualHost>
