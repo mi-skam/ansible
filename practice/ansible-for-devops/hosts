@@ -2,6 +2,9 @@
 romeo
 marco
 
+[windows]
+host.wsl ansible_connection=ssh ansible_shell_type=powershell
+
 [vm]
 alma ansible_host=10.10.0.2
 
