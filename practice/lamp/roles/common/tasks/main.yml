@@ -1,0 +1,33 @@
+---
+# tasks file for roles/common
+- name: Install the common packages
+  ansible.builtin.yum:
+    name: "{{ item }}"
+    state: "installed"
+  with_items: "{{ common_packages }}"
+
+- name: Copy the ntp.conf to /etc/ntp.conf
+  ansible.builtin.template:
+    src: "chrony.conf.j2"
+    dest: "/etc/chrony.conf"
+    mode: 0600
+
+- name: Add group
+  ansible.builtin.group:
+    name: "{{ item.group }}"
+    state: "{{ item.state }}"
+  with_items: "{{ users }}"
+
+- name: Add users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    group: "{{ item.group }}"
+    comment: "{{ item.name }}"
+    state: "{{ item.state }}"
+  with_items: "{{ users }}"
+
+- name: Add ssh key signature to user's authorized_keys
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.key }}"
+  with_items: "{{ users }}"
