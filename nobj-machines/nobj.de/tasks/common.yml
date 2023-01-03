@@ -1,0 +1,22 @@
+---
+- name: "Install PHP and other dependencies."
+  apt:
+    name:
+      - curl
+      - unzip
+      - php8.1-common
+      - php8.1-cli
+      - php8.1-dev
+      - php8.1-gd
+      - php8.1-curl
+      - php8.1-opcache
+      - php8.1-xml
+      - php8.1-mbstring
+      - php8.1-apcu
+      - php8.1-fpm
+    state: present
+
+- name: "Start PHP."
+  service: "name={{ item }} state=started enabled=yes"
+  with_items:
+    - php8.1-fpm

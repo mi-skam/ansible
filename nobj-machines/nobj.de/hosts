@@ -1,0 +1,5 @@
+[dev]
+shine.nobj.de ansible_user=ansible
+
+[local]
+localhost ansible_connection=local

@@ -1,0 +1,57 @@
+---
+firewall_allowed_tcp_ports:
+  - "22"
+  - "80"
+  - "443"
+
+pip_install_packages: ["pyopenssl"]
+
+nginx_vhosts:
+  - listen: "80 default_server"
+    server_name: "_"
+    return: "301 https://$host$request_uri"
+
+  - listen: "443 ssl default_server"
+    server_name: "nobj.de www.nobj.de"
+    root: "/var/www/nobj.de"
+    extra_parameters: |
+      ssl_certificate     "{{ certificate_dir }}/nobj.de/fullchain.pem";
+      ssl_certificate_key "{{ certificate_dir }}/nobj.de/privkey.pem";
+      ssl_protocols       TLSv1.1 TLSv1.2;
+      ssl_ciphers         HIGH:!aNULL:!MD5;
+  - listen: "443 ssl"
+    server_name: "clients.nobj.de"
+    root: "/var/www/clients.nobj.de"
+    index: "index.php index.html"
+    extra_parameters: |
+      location /starterkit-main/ {
+        try_files $uri $uri/ /starterkit-main/index.php$is_args$args;
+      }
+      
+      location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+      }
+       
+      location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+      }
+      ssl_certificate     /etc/letsencrypt/live/clients.nobj.de/fullchain.pem;
+      ssl_certificate_key /etc/letsencrypt/live/clients.nobj.de/privkey.pem;
+      ssl_protocols       TLSv1.1 TLSv1.2;
+      ssl_ciphers         HIGH:!aNULL:!MD5;
+
+nginx_remove_default_vhost: True
+
+# self-signed certificate settings
+certificate_dir: /etc/ssl/private
+server_hostname: nobj.de
+
+# letsencrypt certificate settings
+certbot_create_if_missing: True
+certbot_admin_email: "it@new-objects.com"
+certbot_certs:
+  - domains:
+      - clients.nobj.de
