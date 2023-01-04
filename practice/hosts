@@ -1,9 +1,31 @@
-[dev]
-romeo
-marco
+[vagrant]
+ansible1 ansible_host=192.168.50.4
+ansible2 ansible_host=192.168.50.5
 
-[vm]
-alma
+[vagrant:vars]
+ansible_user=vagrant
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
+
+[windows]
+host.wsl ansible_connection=ssh ansible_shell_type=powershell
 
 [cisco]
 sandbox-iosxe-latest-1.cisco.com
+
+[app]
+192.168.60.4
+192.168.60.5
+
+[db]
+192.168.60.6
+
+[multi:children]
+app
+db
+
+[multi:vars]
+ansible_user=vagrant
+ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
+
+
