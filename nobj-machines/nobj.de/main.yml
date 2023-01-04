@@ -1,16 +1,19 @@
 ---
 - hosts: all
-  become: True
+  become: true
 
   vars_files:
-    - vars/main.yml
+    - vars/certbot.yml
+    - vars/firewall.yml
+    - vars/nginx.yml
+    - vars/self-signed-cert.yml
 
   pre_tasks:
     - name: Ensure apt cache is updated.
-      apt: update_cache=yes cache_valid_time=600
+      ansible.builtin.apt: update_cache=yes cache_valid_time=600
 
     - name: Install dependencies for pyopenssl.
-      apt: name=libssl-dev state=present
+      ansible.builtin.apt: name=libssl-dev state=present
 
   roles:
     - geerlingguy.firewall
@@ -19,15 +22,16 @@
     - geerlingguy.certbot
 
   tasks:
-    - import_tasks: tasks/common.yml
-    - import_tasks: tasks/self-signed-cert.yml
+    - ansible.builtin.import_tasks: tasks/common.yml
+    - ansible.builtin.import_tasks: tasks/self-signed-cert.yml
 
     - name: Ensure docroots exist
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: directory
         owner: "www-data"
         group: "www-data"
+        mode: "0755"
       with_items:
         - /var/www/nobj.de
         - /var/www/clients.nobj.de

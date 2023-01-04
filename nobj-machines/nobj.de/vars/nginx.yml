@@ -1,11 +1,4 @@
 ---
-firewall_allowed_tcp_ports:
-  - "22"
-  - "80"
-  - "443"
-
-pip_install_packages: ["pyopenssl"]
-
 nginx_vhosts:
   - listen: "80 default_server"
     server_name: "_"
@@ -27,7 +20,7 @@ nginx_vhosts:
       location /starterkit-main/ {
         try_files $uri $uri/ /starterkit-main/index.php$is_args$args;
       }
-      
+
       location / {
         try_files $uri $uri/ /index.php$is_args$args;
       }
@@ -44,14 +37,3 @@ nginx_vhosts:
       ssl_ciphers         HIGH:!aNULL:!MD5;
 
 nginx_remove_default_vhost: True
-
-# self-signed certificate settings
-certificate_dir: /etc/ssl/private
-server_hostname: nobj.de
-
-# letsencrypt certificate settings
-certbot_create_if_missing: True
-certbot_admin_email: "it@new-objects.com"
-certbot_certs:
-  - domains:
-      - clients.nobj.de

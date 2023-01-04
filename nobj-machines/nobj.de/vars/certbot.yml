@@ -1,0 +1,6 @@
+# letsencrypt certificate settings
+certbot_create_if_missing: True
+certbot_admin_email: "it@new-objects.com"
+certbot_certs:
+  - domains:
+      - clients.nobj.de
