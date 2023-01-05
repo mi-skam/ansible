@@ -1,5 +1,0 @@
-{
-  "yaml.schemas": {
-    "https://raw.githubusercontent.com/ansible/schemas/main/f/ansible-vars.json": "file:///home/plumps/ansible/practice/lamp/roles/common/defaults/main.yml"
-  }
-}
