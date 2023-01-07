@@ -1,0 +1,4 @@
+---
+- name: Just print some random text.
+  debug:
+    msg: "Hello from minimal role."
